@@ -546,12 +546,12 @@ static Config  config[] =
 	  "# This must match where PiKrellCam is installed and it is checked by\n"
 	  "# the install-pikrellcam.sh script.  This should not need to be edited.\n"
 	  "#",
-	"install_dir", "/home/pi/pikrellcam", TRUE, { .string = &pikrellcam.install_dir }, config_string_set },
+	"install_dir", "/srv/http/pikrellcam", TRUE, { .string = &pikrellcam.install_dir }, config_string_set },
 
 	{ "# If media_dir has no leading '/' it will be a sub directory in install_dir.\n"
 	  "# Otherwise it is a full pathname to the media directory.\n"
-	  "# So the default media dir is /home/pi/pikrellcam/media.\n"
-	  "# An alternate choice could be /home/pi/media if you set the full path.\n"
+	  "# So the default media dir is /srv/http/pikrellcam/media.\n"
+	  "# An alternate choice could be /srv/http/pikrellcam/media if you set the full path.\n"
 	  "# Even /tmp/media with /tmp a tmpfs can be an option for a setup that\n"
 	  "# will manage by hand or script the limited space available.\n"
 	  "# A file system may be mounted on the media dir in the startup script.\n"
@@ -560,7 +560,7 @@ static Config  config[] =
 
 	{ "# If archive_dir has no leading '/' it will be a sub directory under media_dir.\n"
 	  "# Otherwise it is a full pathname to the archive directory.\n"
-	  "# So the default archive dir is /home/pi/pikrellcam/media/archive.\n"
+	  "# So the default archive dir is /srv/http/pikrellcam/media/archive.\n"
 	  "# When media files are archived, they will be moved to sub directories:\n"
 	  "#     archive_dir/year/month/day/[videos|thumbs|stills]\n"
 	  "# A file system may be mounted on the archive dir in the startup script.\n"
@@ -569,7 +569,7 @@ static Config  config[] =
 
 	{ "# If loop_dir has no leading '/' it will be a sub directory under media_dir.\n"
 	  "# Otherwise it is a full pathname to the loop directory.\n"
-	  "# So the default archive dir is /home/pi/pikrellcam/media/loop.\n"
+	  "# So the default archive dir is /srv/http/pikrellcam/media/loop.\n"
 	  "# A file system may be mounted on the loop dir in the startup script.\n"
 	  "#",
 	"loop_dir", "loop", TRUE, { .string = &pikrellcam.loop_dir }, config_string_set },

@@ -1,4 +1,4 @@
-# If started from the web page, real user needs to be pi.
-# so give www-data permission to run sudo -u pi pikrellcam
+# If started from the web page, real user needs to be pikrellcam.
+# so give http permission to run sudo -u pikrellcam pikrellcam
 
-www-data ALL=(USER) NOPASSWD: pikrellcam
+http ALL=(pikrellcam) NOPASSWD: /usr/bin/pikrellcam

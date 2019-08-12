@@ -30,13 +30,11 @@ fi
 if [ ! -d $STILLS_FULL_DIR/.thumbs ]
 then
 	mkdir $STILLS_FULL_DIR/.thumbs
-	sudo chown :www-data $STILLS_FULL_DIR/.thumbs
-	sudo chmod 775  $STILLS_FULL_DIR/.thumbs
 fi
 
 cd $STILLS_FULL_DIR
 
-LOCK_FILE=/tmp/pikrellcam-stills-rescan-lock
+LOCK_FILE=/run/pikrellcam/pikrellcam-stills-rescan-lock
 
 if [ -f $LOCK_FILE ]
 then

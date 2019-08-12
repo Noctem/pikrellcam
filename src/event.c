@@ -773,8 +773,8 @@ log_lines(void)
 
 	if (pikrellcam.log_lines > 0)
 		{
-		snprintf(buf, sizeof(buf), "%s/scripts-dist/_log-lines %d $G",
-					pikrellcam.install_dir, pikrellcam.log_lines);
+		snprintf(buf, sizeof(buf), "/var/lib/pikrellcam/scripts-dist/_log-lines %d $G",
+					pikrellcam.log_lines);
 		exec_wait(buf, NULL); 
 		}
 	}

@@ -22,9 +22,6 @@ LOG_FILE=$6
 SERVOS_ENABLE=$7
 LOOP_DIR=$8
 
-STATE_FILE=/run/pikrellcam/state
-MJPEG_FILE=/run/pikrellcam/mjpeg.jpg
-
 if [ "$LOG_FILE" == "" ]
 then
 	LOG_FILE = /dev/null
@@ -35,25 +32,11 @@ cd $INSTALL_DIR
 # note there is a tab before 'define' in the CMD assignments.
 #
 WWW_CONFIG=$INSTALL_DIR/www/config.php
-PIKRELLCAM=$INSTALL_DIR/pikrellcam
+PIKRELLCAM=/usr/bin/pikrellcam
 ARCHIVE_LINK=www/archive
 LOOP_LINK=www/loop
 MEDIA_LINK=www/media
-STATE_LINK=www/state
-MJPEG_LINK=www/mjpeg.jpg
 VERSION=`pikrellcam --version`
-
-if [ ! -h $STATE_LINK ]
-then
-	echo "  making $STATE_LINK link to $STATE_FILE" >> $LOG_FILE
-	ln -s $STATE_FILE $STATE_LINK
-fi
-
-if [ ! -h $MJPEG_LINK ]
-then
-	echo "  making $MJPEG_LINK link to $MJPEG_FILE" >> $LOG_FILE
-	ln -s $MJPEG_FILE $MJPEG_LINK
-fi
 
 if [ ! -h $MEDIA_LINK ]
 then
@@ -147,23 +130,3 @@ then
 else
 	echo "  $WWW_CONFIG: SERVOS_ENABLE not changed." >> $LOG_FILE
 fi
-
-if ! fgrep -q $VERSION $WWW_CONFIG
-then
-	CMD="/VERSION/c\	define\(\"VERSION\", \"$VERSION\"\);"
-	sed -i "$CMD" $WWW_CONFIG
-	echo "  $WWW_CONFIG: VERSION updated to: $VERSION" >> $LOG_FILE
-else
-	echo "  $WWW_CONFIG: VERSION not changed." >> $LOG_FILE
-fi
-
-cd $INSTALL_DIR/scripts-dist
-for script in *
-do
-	if [ ! -f ../scripts/$script ] && [ "${script:0:1}" != "_" ] \
-		&& [ "${script:0:4}" != "pkc_" ] && [ "${script:0:8}" != "example_" ]
-	then
-		cp $script ../scripts 
-	fi
-done
-

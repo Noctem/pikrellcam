@@ -666,14 +666,14 @@ thumb_convert(void)
 	   )
 		{
 		motion_preview_area_fixup();
-		fmt = "$I/scripts-dist/_thumb $F $G $A 150x%d $i $J $K $Y";
+		fmt = "/var/lib/pikrellcam/scripts-dist/_thumb $F $G $A 150x%d $i $J $K $Y";
 		if (   (vcb->state & VCB_STATE_LOOP_RECORD)
 		    && (s = strstr(pikrellcam.thumb_name, "0.th.jpg")) != NULL
 		   )
 			*s = 'm';
 		}
 	else
-		fmt = "$I/scripts-dist/_thumb $F $G $A 150x%d 0 0 0 0";
+		fmt = "/var/lib/pikrellcam/scripts-dist/_thumb $F $G $A 150x%d 0 0 0 0";
 
 	snprintf(buf, sizeof(buf), fmt, h);
 	thumb_cmd = expand_command(buf, pikrellcam.preview_pathname);
@@ -1580,7 +1580,7 @@ command_process(char *command_line)
 				else
 					fmt = "%s/scripts-dist/_archive-video %s %s $a $m $P $G";
 				snprintf(buf, sizeof(buf), fmt,
-						pikrellcam.install_dir, arg1, arg2);
+						homedir, arg1, arg2);
 				exec_no_wait(buf, NULL, TRUE);
 				if (pikrellcam.check_archive_diskfree)
 					event_add("archive diskfree percent", pikrellcam.t_now + 3,
@@ -1595,7 +1595,7 @@ command_process(char *command_line)
 				{
 				snprintf(buf, sizeof(buf),
 						"%s/scripts-dist/_archive-still %s %s $a $m $P $G",
-						pikrellcam.install_dir, arg1, arg2);
+						homedir, arg1, arg2);
 				exec_no_wait(buf, NULL, TRUE);
 				if (pikrellcam.check_archive_diskfree)
 					event_add("archive diskfree percent", pikrellcam.t_now + 3,
@@ -1610,7 +1610,7 @@ command_process(char *command_line)
 				{
 				snprintf(buf, sizeof(buf),
 						"%s/scripts-dist/_stills_thumbs_rescan %s $I $P $G",
-						pikrellcam.install_dir, arg1);
+						homedir, arg1);
 				exec_no_wait(buf, NULL, TRUE);
 				}
 			else
@@ -1628,7 +1628,7 @@ command_process(char *command_line)
 				{
 				snprintf(buf, sizeof(buf),
 							"%s/scripts-dist/_fix_thumbs $m $a $G %s",
-							pikrellcam.install_dir, args);
+							homedir, args);
 				exec_no_wait(buf, NULL, TRUE);
 				}
 			break;
@@ -1666,9 +1666,6 @@ command_process(char *command_line)
 			break;
 
 		case upgrade:
-			snprintf(buf, sizeof(buf), "%s/scripts-dist/_upgrade $I $P $G $Z",
-						pikrellcam.install_dir);
-			exec_no_wait(buf, NULL, TRUE);
 			break;
 
 		case halt:
@@ -1771,11 +1768,9 @@ check_modes(char *fname, int mode)
 
 		if (grp && grp->gr_name && pwd && pwd->pw_name)
 			{
-			if (   strcmp(pwd->pw_name, pikrellcam.effective_user)
-			    || strcmp(grp->gr_name, "www-data")
-			   )
+			if (strcmp(grp->gr_name, "http"))
 				{
-				snprintf(ch_cmd, sizeof(ch_cmd), "sudo chown %s.www-data %s",
+				snprintf(ch_cmd, sizeof(ch_cmd), "chown %s.http %s",
 						pikrellcam.effective_user, fname);
 				if (pikrellcam.verbose)
 					log_printf_no_timestamp("  check_modes() execing: %s\n", ch_cmd);
@@ -1787,7 +1782,7 @@ check_modes(char *fname, int mode)
 
 			if ((st.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) != mode)
 				{
-				snprintf(ch_cmd, sizeof(ch_cmd), "sudo chmod %o %s", mode, fname);
+				snprintf(ch_cmd, sizeof(ch_cmd), "chmod %o %s", mode, fname);
 				if (pikrellcam.verbose)
 					log_printf_no_timestamp("  check_modes() (%o) execing: %s\n",
 							st.st_mode, ch_cmd);
@@ -1850,8 +1845,8 @@ make_dir(char *dir)
 	if ((dir_exists = isdir(dir)) == FALSE)
 		{
 		if (pikrellcam.verbose)
-			log_printf_no_timestamp("  make_dir() execing sudo mkdir -p %s\n", dir);
-		exec_wait("sudo mkdir -p $F", dir);
+			log_printf_no_timestamp("  make_dir() execing mkdir -p %s\n", dir);
+		exec_wait("mkdir -p $F", dir);
 		if ((dir_exists = isdir(dir)) == FALSE)
 			{
 			log_printf_no_timestamp("make_dir(%s) failed. %m\n", dir);
@@ -1867,8 +1862,6 @@ make_dir(char *dir)
 		}
 	else if (pikrellcam.verbose)
 		log_printf_no_timestamp("  make_dir(%s) dir already exists.\n", dir);
-	if (dir_exists)
-		check_modes(dir, 0775);
 	return dir_exists;
 	}
 
@@ -1963,7 +1956,7 @@ main(int argc, char *argv[])
 		if (user_gid > 0)
 			setgid(user_gid);
 		setuid(user_uid);
-		snprintf(buf, sizeof(buf), "HOME=%s", homedir ? homedir : "/home/pi");
+		snprintf(buf, sizeof(buf), "HOME=%s", homedir ? homedir : "/var/lib/pikrellcam");
 		putenv(buf);
 		log_printf_no_timestamp("== Dropped root priviledges-continuing as normal user ==\n");
 		log_start(FALSE, FALSE, TRUE);
@@ -1996,13 +1989,13 @@ main(int argc, char *argv[])
 	if (!homedir)
 		homedir = getpwuid(geteuid())->pw_dir;
 	if (!homedir)
-		homedir = "/home/pi";
+		homedir = "/var/lib/pikrellcam";
 
 	user = strrchr(homedir, '/');
 	if (user)
 		++user;
 
-	pikrellcam.effective_user = strdup(user ? user : "pi");
+	pikrellcam.effective_user = strdup(user ? user : "pikrellcam");
 
 	if (!motion_regions_config_load(pikrellcam.motion_regions_config_file, FALSE))
 		motion_regions_config_save(pikrellcam.motion_regions_config_file, FALSE);
@@ -2071,13 +2064,12 @@ main(int argc, char *argv[])
 		}
 
 	snprintf(buf, sizeof(buf), "%s/%s", pikrellcam.install_dir, "www");
-	check_modes(buf, 0775);
 
 	asprintf(&pikrellcam.command_fifo, "%s/www/FIFO", pikrellcam.install_dir);
 	asprintf(&pikrellcam.motion_detects_fifo, "%s/www/motion_detects_FIFO", pikrellcam.install_dir);
 	asprintf(&pikrellcam.audio_fifo, "%s/www/audio_FIFO", pikrellcam.install_dir);
-	asprintf(&pikrellcam.scripts_dir, "%s/scripts", pikrellcam.install_dir);
-	asprintf(&pikrellcam.scripts_dist_dir, "%s/scripts-dist", pikrellcam.install_dir);
+	asprintf(&pikrellcam.scripts_dir, "%s/scripts", homedir);
+	asprintf(&pikrellcam.scripts_dist_dir, "%s/scripts-dist", homedir);
 	asprintf(&pikrellcam.mjpeg_filename, "%s/mjpeg.jpg", pikrellcam.tmpfs_dir);
 	asprintf(&pikrellcam.state_filename, "%s/state", pikrellcam.tmpfs_dir);
 
@@ -2116,7 +2108,7 @@ main(int argc, char *argv[])
 		}
 
 	snprintf(buf, sizeof(buf), "%s/scripts-dist/_init $I $a $m $M $P $G %s %s",
-		pikrellcam.install_dir,
+		homedir,
 		(pikrellcam.have_servos) ? "servos_on" : "servos_off",
 		pikrellcam.loop_dir);
 	exec_wait(buf, NULL);

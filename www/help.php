@@ -251,12 +251,9 @@ Go to the PiKrellCam web page in your browser (omit the port number if it was le
 
 <span style='font-size: 1.5em; font-weight:650'>Upgrades</span><hr>
 <div class='indent0'>
-	Expand the front page
-	<span style='font-weight:700'>System</span> panel and click the
-	<span <span class='btn-control'>Upgrade</span> button.<br>
 	After an upgrade to a new version PiKrellCam should be stopped
-	and restarted from the
-	<span style='font-weight:700'>System</span> panel and the web pages
+	and restarted from 
+	<span style='font-weight:700'>systemd</span> panel and the web pages
 	should be reloaded to pick up any possible web page changes.
 </div>
 
@@ -1570,8 +1567,8 @@ that pikrellcam uses to store and view media files and the defaults are:
 <pre>
 pi@rpi2: ~$ ls -lt pikrellcam/www
 total 116
-lrwxrwxrwx 1 pi       www-data    33 Nov 16 09:07 archive -> /home/pi/pikrellcam/media/archive/
-lrwxrwxrwx 1 pi       www-data    25 Nov 16 09:07 media -> /home/pi/pikrellcam/media/
+lrwxrwxrwx 1 pikrellcam   http    33 Nov 16 09:07 archive -> /srv/http/pikrellcam/media/archive/
+lrwxrwxrwx 1 pikrellcam   http    25 Nov 16 09:07 media -> /srv/http/pikrellcam/media/
 </pre>
 The media link is the main media directory and its media file sub directories which contain a flat
 list of files where media files for all days are initially stored.
@@ -1708,7 +1705,7 @@ $ sudo systemctl restart nfs-kernel-server
 	For this example I will mount onto the default pikrellcam archive location
 	so I don't have to edit archive_dir in pikrellcam.conf.  I leave it
 	at its default which assumes
-	<nobr>/home/pi/pikrellcam/media/archive</nobr>
+	<nobr>/srv/http/pikrellcam/media/archive</nobr>
 	since there is no leading /:<br>
 		&nbsp &nbsp <span style='font-weight:700'>archive_dir archive</span><br>
 	</li>
@@ -1718,13 +1715,13 @@ $ sudo systemctl restart nfs-kernel-server
 	directory onto the pikrellcam archive directory. Use the archive_dir
 	full path implied by the archive_dir value above:
 <pre>
-gkrellm6:/home/bill/media-archive /home/pi/pikrellcam/media/archive nfs users,noauto 0 0
+gkrellm6:/home/bill/media-archive /srv/http/pikrellcam/media/archive nfs users,noauto 0 0
 </pre>
 	</li>
 	<li> NFS mount the gkrellm6 media-archive directory by hand or by script.
 	The mount command will use the /etc/fstab line to mount the gkrellm6
 	<nobr>/home/bill/media-archive</nobr> directory on the pikrellcam
-	<nobr>/home/pi/pikrellcam/media/archive</nobr> directory.
+	<nobr>/srv/http/pikrellcam/media/archive</nobr> directory.
 	After mounting, running df will show the NFS mount and reloading
 	web pages will show "NFS Archive Calendar" buttons.
 <pre>
@@ -1735,8 +1732,8 @@ $ sudo mount gkrellm6:/home/bill/media-archive
 	to mount the NFS archive directory when pikrellcam starts.
 	Pikrellcam installs prior to V 4.1.5 did not have a NFS section in that
 	startup script so you may have to copy the new
-	<nobr>~/pikrellcam/scripts-dist/startup</nobr> over your existing
-	<nobr>~/pikrellcam/scripts/startup.</nobr> and reconfigure
+	<nobr>/var/lib/pikrellcam/scripts-dist/startup</nobr> over your existing
+	<nobr>/var/lib/pikrellcam/scripts/startup.</nobr> and reconfigure
 	MOUNT_DISK if you had previously done that.<br>
 	Otherwise, configuration for NFS mounting must be as follows:
 	<ul>
@@ -2531,7 +2528,7 @@ an &lt;off&gt; tag is written to the motion_detects_FIFO so the user app can
 know the motion_detects_fifo_enable has been turned off.
 <p>
 Read the example script
-<span style='font-weight:700'>~/pikrellcam/scripts-dist/example-motion-detects-fifo</span>
+<span style='font-weight:700'>/var/lib/pikrellcam/scripts-dist/example-motion-detects-fifo</span>
 for more information. If this script is run by hand from a terminal,
 a stream of all motion detects is printed.
 <p>
@@ -2539,7 +2536,7 @@ To test the example script on a Pi running pikrellcam, open a terminal
 (SSH terminal if the Pi is headless) and run the example script:<br>
 
 <pre>
-    $ ~/pikrellcam/scripts-dist/example-motion-detects-fifo
+    $ /var/lib/pikrellcam/scripts-dist/example-motion-detects-fifo
 # The script enables motion_detects_FIFO and motion detects are printed here.
 # Terminate the script with ^C or send an off command in another termial:
 #    $ echo "motion_detects_fifo_enable off" > ~/pikrellcam/www/FIFO

@@ -10,23 +10,11 @@ ARCHIVE_DIR=$2
 LOG=$3
 TEST=$4
 
-#MEDIA_DIRECTORY=/home/pi/pikrellcam/www/media
-#ARCHIVE_DIR=/home/pi/pikrellcam/www/media/archive
-
-BUSTER=10
-V=`cat /etc/debian_version`
-DEB_VERSION="${V%.*}"
-
-if ((DEB_VERSION >= BUSTER))
-then
-	AV_PGM=ffmpeg
-else
-	AV_PGM=avconv
-fi
+AV_PGM=ffmpeg
 
 function check_thumb
 	{
-	TMP_DIR=/var/run/pikrellcam
+	TMP_DIR=/run/pikrellcam
 	BASE=`basename $1`
 	PREFIX=${BASE:0:3}
 	DIR=`dirname $1`

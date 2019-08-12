@@ -76,7 +76,7 @@ then
 		if [ "$curmount_dir" != "$media_dir" ]
 		then
 			echo "  umount $disk_device from $curmount_dir" >> $log_file
-			sudo umount $disk_device
+			umount $disk_device
 		fi
 	fi
 
@@ -85,7 +85,7 @@ then
 		FS_TYPE=`stat -f -c '%T' $media_dir`
 		if [ "$FS_TYPE" != "tmpfs" ]
 		then
-			if sudo mount $disk_device $media_dir
+			if mount $disk_device $media_dir
 			then
 				echo "  mounted $disk_device on $media_dir" >> $log_file
 			else
@@ -124,7 +124,7 @@ then
 		echo "  $archive_dir is already NFS mounted." >> $log_file
 	else
 		cp $install_dir/www/images/nfs-mounting.jpg /run/pikrellcam/mjpeg.jpg
-		sudo mount $NFS_ARCHIVE &
+		mount $NFS_ARCHIVE &
 		for ((p = 0; p < 10; p++))
 		do
 			sleep 1

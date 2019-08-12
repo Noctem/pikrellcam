@@ -38,16 +38,7 @@ LOG_FILE=$4
 COMMAND_FIFO=$5
 FILENAME_FORMAT=$6
 
-BUSTER=10
-V=`cat /etc/debian_version`
-DEB_VERSION="${V%.*}"
-
-if ((DEB_VERSION >= BUSTER))
-then
-	AV_PGM=ffmpeg
-else
-	AV_PGM=avconv
-fi
+AV_PGM=ffmpeg
 
 #
 # Requires libav-tools

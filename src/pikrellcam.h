@@ -84,7 +84,7 @@ extern int h264_conn_status;
 */
 #define	EVENT_LOOP_FREQUENCY	10
 
-#define PIKRELLCAM_CONFIG_DIR					".pikrellcam"
+#define PIKRELLCAM_CONFIG_DIR					"config"
 #define PIKRELLCAM_CONFIG						"pikrellcam.conf"
 #define PIKRELLCAM_MOTION_REGIONS_CONFIG		"motion-regions.conf"
 #define PIKRELLCAM_MOTION_REGIONS_CUSTOM_CONFIG	"motion-regions-%s.conf"
