@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <locale.h>
 #include <linux/magic.h>
+#include <sys/prctl.h>
 
 
 PiKrellCam	pikrellcam;
@@ -1946,37 +1947,7 @@ main(int argc, char *argv[])
 		}
 	pikrellcam.pi_model = pi_model();
 
-	/* If need to mmap() gpios for servos, restart a sudo pikrellcam which can
-	|  mmap() /dev/mem and then drop priviledes back to orig user/group
-	*/
-	if (getuid() == 0)	/* root, so mmap(), drop privileges and continue */
-		{
-		log_start(FALSE, TRUE, FALSE);
-		servo_init();
-		if (user_gid > 0)
-			setgid(user_gid);
-		setuid(user_uid);
-		snprintf(buf, sizeof(buf), "HOME=%s", homedir ? homedir : "/var/lib/pikrellcam");
-		putenv(buf);
-		log_printf_no_timestamp("== Dropped root priviledges-continuing as normal user ==\n");
-		log_start(FALSE, FALSE, TRUE);
-		}
-	else if (pikrellcam.have_servos && !pikrellcam.servo_use_servoblaster)
-		{
-		/* Need to restart pikrellcam as root so can mmap() PWMs for servos.
-		*/
-		log_start(TRUE, FALSE, FALSE);
-		log_printf_no_timestamp("========= Restarting as root to mmap() servos ==========\n");
-		homedir = getpwuid(geteuid())->pw_dir;
-		i = snprintf(buf, sizeof(buf), "sudo -P %s -user%d -group%d -home%s ",
-				*argv++, (int) getuid(), (int) getgid(), homedir);
-		while (--argc && i < sizeof(buf) - 64 - strlen(*argv))
-			i += sprintf(buf + i, "%s ", *argv++);
-
-		exec_wait(buf, NULL);
-		exit(0);
-		}
-	else if (pikrellcam.servo_use_servoblaster)
+	if (pikrellcam.have_servos)
 		{
 		log_start(TRUE, TRUE,FALSE);
 		servo_init();
@@ -1984,6 +1955,9 @@ main(int argc, char *argv[])
 		}
 	else
 		log_start(TRUE, TRUE, TRUE);
+
+	if (prctl(PR_CAP_AMBIENT, PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0) == -1)
+		printf("Failed to drop capabilities.");
 
 	bcm_host_init();
 	if (!homedir)
