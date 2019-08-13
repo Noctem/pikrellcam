@@ -904,10 +904,7 @@ function restart_page($selected)
 		}
 	else
 		$dir = exec("readlink -f $media_dir"). "/$media_type";
-	$e_user = "pi";
-	if (file_exists('user.php'))
-		include 'user.php';
-	$dir = str_replace("/home/$e_user/", "~/", $dir);
+	$dir = str_replace("/var/lib/pikrellcam/", "~/", $dir);
 
 	echo "<span style=\"float: top; margin-left:20px; font-size: 0.96em; font-weight:550; color: $default_text_color\">
 		$dir &nbsp;&nbsp;${total}B &nbsp Free:&thinsp;${free}B&thinsp;($free_percent %)</span>";
